@@ -2,6 +2,7 @@ package com.example.vaadin.spring.view;
 
 import com.example.vaadin.spring.model.Customer;
 import com.example.vaadin.spring.service.CustomerService;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -26,22 +27,39 @@ public class MainView extends VerticalLayout {
         this.service = service;
         this.form = new CustomerForm(this, service);
 
+        // =========== Toolbar ===========
+
         filterText.setPlaceholder("Filter by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.EAGER);
         filterText.addValueChangeListener(e -> updateList());
 
+        Button addCustomerBtn = new Button("Add new customer");
+        addCustomerBtn.addClickListener(e -> {
+            grid.asSingleSelect().clear();
+            form.setCustomer(new Customer());
+        });
+
+        HorizontalLayout toolbar = new HorizontalLayout(filterText, addCustomerBtn);
+
+        // =========== Main Content ===========
+
         grid.setColumns("firstName", "lastName", "status");
+        grid.asSingleSelect().addValueChangeListener(event ->
+                form.setCustomer(grid.asSingleSelect().getValue()));
 
         HorizontalLayout mainContent = new HorizontalLayout(grid, form);
         mainContent.setSizeFull();
         grid.setSizeFull();
 
-        add(filterText, mainContent);
+
+        add(toolbar, mainContent);
 
         setSizeFull();
 
         updateList();
+
+        form.setCustomer(null);
     }
 
     void updateList() {
