@@ -1,5 +1,7 @@
 package com.example.vaadin.spring.view;
 
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.BETWEEN;
+
 import com.example.vaadin.spring.model.Customer;
 import com.example.vaadin.spring.model.CustomerStatus;
 import com.example.vaadin.spring.service.CustomerService;
@@ -20,9 +22,6 @@ public class CustomerForm extends FormLayout {
     private ComboBox<CustomerStatus> status = new ComboBox<>("Status");
     private DatePicker birthDate = new DatePicker("Birthday");
 
-    private Button save = new Button("Save");
-    private Button delete = new Button("Delete");
-
     private Binder<Customer> binder = new Binder<>(Customer.class);
 
     private MainView mainView;
@@ -34,10 +33,16 @@ public class CustomerForm extends FormLayout {
 
         status.setItems(CustomerStatus.values());
 
+        Button save = new Button("Save");
         save.addClickListener(this::save);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        delete.addClickListener(this::delete);
-        HorizontalLayout buttons = new HorizontalLayout(save, delete);
+
+        Button cancel = new Button("Cancel");
+        cancel.addClickListener((e) -> setCustomer(null));
+
+        HorizontalLayout buttons = new HorizontalLayout(save, cancel);
+        buttons.setJustifyContentMode(BETWEEN);
+        buttons.setSpacing(false);
 
         add(firstName, lastName, status, birthDate, buttons);
 
@@ -58,13 +63,6 @@ public class CustomerForm extends FormLayout {
     private void save(ClickEvent<Button> event) {
         Customer customer = binder.getBean();
         service.save(customer);
-        mainView.updateList();
-        setCustomer(null);
-    }
-
-    private void delete(ClickEvent<Button> event) {
-        Customer customer = binder.getBean();
-        service.delete(customer);
         mainView.updateList();
         setCustomer(null);
     }
